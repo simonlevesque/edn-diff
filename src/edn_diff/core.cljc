@@ -6,7 +6,13 @@
 
   sexp-diff computes a diff between two s-expressions which minimizes
   the number of atoms (datum) in the result tree, also counting edit
-  conditionals :new, :old.")
+  conditionals :new, :old.
+
+  reference:
+
+  https://github.com/stamourv/sexp-diff/tree/master/sexp-diff
+  http://wiki.call-cc.org/eggref/4/sexp-diff
+  https://github.com/michaelw/mw-diff-sexp")
 
 ;; structure to track and compare edits
 (defstruct edit :type :distance :change)
