@@ -57,6 +57,11 @@
   []
   (compound-edit '()))
 
+(defn extend-compound-edit
+  "add edit to a chain of edit"
+  [edit-chain edit]
+  (compound-edit (cons edit (:change edit-chain))))
+
 (defmulti render-difference
   "rebuild s-exp from edit and apply change marker to element that
   differs"
@@ -88,11 +93,6 @@
                                                  new-marker)))
                 '()
                 (reverse (:change edits)))))
-
-(defn extend-compound-edit
-  "add edit to a chain of edit"
-  [edit-chain edit]
-  (compound-edit (cons edit (:change edit-chain))))
 
 (defn initial-distance
   "for a list return the edits representing the distance for building
