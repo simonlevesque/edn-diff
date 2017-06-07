@@ -18,3 +18,29 @@
   (if (coll? tree)
     (apply + 1 (map tree-size tree))
     1))
+
+(defn unchanged-edit
+  "edit who's distance is the same as the distance of its content."
+  [change]
+  (struct edit :unchanged (tree-size change) change))
+
+(defn deletion-edit
+  "edit representing the distance of removing its content"
+  [change]
+  (struct edit :deletion (inc (tree-size change)) change))
+
+(defn insertion-edit
+  "edit representing the distance of adding its content"
+  [change]
+  (struct edit :insertion (inc (tree-size change)) change))
+
+(defn update-edit
+  "edit representing the distance of removing the old content adding
+  the new content"
+  [old new]
+  (struct update-edition
+          :update
+          (+ 1 (tree-size old)
+             1 (tree-size new))
+          old
+          new))
