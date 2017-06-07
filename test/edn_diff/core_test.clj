@@ -87,6 +87,30 @@
              (render-difference {:type :unchanged :distance 1 :change '()}
                                 :old :new))))))
 
+(deftest initial-distance-test
+  ;; this test can be converted to a properly based generated test
+  (testing "that initial-distance return the distance require to build
+  the list"
+    (is (= 5
+           (count (initial-distance unchanged-edit
+                                    '(1 2 3 4))))))
+  (testing "that initial-distance return a lists of edit"
+    (is (= [{:type :compound :distance 0 :change '()}
+            {:type :compound
+             :distance 1
+             :change '({:type :unchanged :distance 1 :change 1})}
+            {:type :compound
+             :distance 2
+             :change
+             '({:type :unchanged :distance 1 :change 2}
+               {:type :unchanged :distance 1 :change 1})}
+            {:type :compound
+             :distance 3
+             :change
+             '({:type :unchanged :distance 1 :change 3}
+               {:type :unchanged :distance 1 :change 2}
+               {:type :unchanged :distance 1 :change 1})}]
+           (initial-distance unchanged-edit '(1 2 3))))))
 
 (deftest sexp-diff-test
   (testing "that diff are valid"
