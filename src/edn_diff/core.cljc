@@ -11,3 +11,10 @@
 ;; structure to track and compare edits
 (defstruct edit :type :distance :change)
 (defstruct update-edition :type :distance :old :new)
+
+(defn tree-size
+  "calculate number of leaf in a tree"
+  [tree]
+  (if (coll? tree)
+    (apply + 1 (map tree-size tree))
+    1))
