@@ -94,6 +94,11 @@
                 '()
                 (reverse (:change edits)))))
 
+(defn min-edit
+  "select a edit with the minimal distance for a list of edits"
+  [& edits]
+  (apply min-key :distance edits))
+
 (defn initial-distance
   "for a list return the edits representing the distance for building
   that list progressively.
@@ -129,3 +134,47 @@
             (conj ss (extend-compound-edit (last ss) (edit-type-fn l))))
           [(empty-compound-edit)]
           lst))
+
+(defn levenshtein-list-row-edit
+  "iterate over all the elements of the rows of the levenshtein
+  table and return the best and current edit that minimizes the
+  distance."
+  [new-part {:keys [best current row col]} [old-part row-idx]]
+  (let [best-edit (min-edit (extend-compound-edit (get row (inc row-idx))
+                                                  (insertion-edit new-part))
+                            (extend-compound-edit  current
+                                                   (deletion-edit old-part))
+                            (extend-compound-edit (get row row-idx)
+                                                  (levenshtein-tree-edit old-part new-part)))]
+    {:row (assoc row row-idx current)
+     :current best-edit
+     :best best-edit
+     :col col}))
+
+(defn levenshtein-list-col-edit
+  "iterate over all the element of the columns of the levenshtein
+  table tracking the best of each row of the levenshtein."
+  [old-tree {:keys [best row col]} [new-part current]]
+  (let [pos-map (reduce (partial levenshtein-list-row-edit new-part)
+                        {:best best
+                         :current current
+                         :row row
+                         :col col}
+                        (map vector old-tree (range)))]
+    (update pos-map :row assoc (dec (count row)) (:best pos-map))))
+
+(defn levenshtein-list-edit
+  "compare the old and new list sequentially starting from the first
+  element of the old list and return the best edit chain.
+
+  note the old list of columns of the levenshtein table
+  and the new list id the rows of the levenshtein table"
+  [old-list new-list]
+  (let [row (initial-distance deletion-edit old-list)
+        col (initial-distance insertion-edit new-list)]
+    (-> (reduce (partial levenshtein-list-col-edit old-list)
+                {:best false
+                 :row row
+                 :col col}
+                (map vector new-list (drop 1 col)))
+        :best)))
