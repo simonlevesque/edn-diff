@@ -178,3 +178,12 @@
                  :col col}
                 (map vector new-list (drop 1 col)))
         :best)))
+
+(defn sexp-diff
+  "computes a diff between two s-expressions which minimizes the
+  number of atoms (datum) in the result tree and marks the differences
+  with the :old and :new markers.
+  :old is what is being removed and :new is what is being added"
+  [old-tree new-tree]
+  (render-difference (levenshtein-tree-edit old-tree new-tree)
+                     :old :new))
