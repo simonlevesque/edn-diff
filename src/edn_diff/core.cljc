@@ -44,3 +44,20 @@
              1 (tree-size new))
           old
           new))
+
+(defn compound-edit
+  "edit representing the distance of chaining multiple edit together"
+  [changes]
+  (struct edit :compound (apply + (map :distance changes)) changes))
+
+(defn empty-compound-edit
+  "edit representing a empty chain of edits.
+
+  note that the distance of '() is 1"
+  []
+  (compound-edit '()))
+
+(defn extend-compound-edit
+  "add edit to a chain of edit"
+  [edit-chain edit]
+  (compound-edit (cons edit (:change edit-chain))))
