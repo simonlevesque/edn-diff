@@ -61,3 +61,39 @@
   "add edit to a chain of edit"
   [edit-chain edit]
   (compound-edit (cons edit (:change edit-chain))))
+
+(defn initial-distance
+  "for a list return the edits representing the distance for building
+  that list progressively.
+
+  return a vector of sub-lists of lst represented in edit form by
+  applying edit-type-fn of every element. the first element of the
+  vector is a empty edit chain and the subsequent element of the
+  vector are sub-list of lst starting from the start of lst.
+
+  e.g
+
+  (initial-distance unchanged-edit '(1 2 3))
+
+  =>
+
+  [{:type :compound, :distance 0, :change ()}
+   {:type :compound,
+    :distance 1,
+    :change ({:type :unchanged, :distance 1, :change 1})}
+   {:type :compound,
+    :distance 2,
+    :change
+     ({:type :unchanged, :distance 1, :change 2}
+      {:type :unchanged, :distance 1, :change 1})}
+   {:type :compound,
+    :distance 3,
+    :change
+     ({:type :unchanged, :distance 1, :change 3}
+      {:type :unchanged, :distance 1, :change 2}
+      {:type :unchanged, :distance 1, :change 1})}]"
+  [edit-type-fn lst]
+  (reduce (fn [ss l]
+            (conj ss (extend-compound-edit (last ss) (edit-type-fn l))))
+          [(empty-compound-edit)]
+          lst))
