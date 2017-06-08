@@ -18,6 +18,8 @@
 (defstruct edit :type :distance :change)
 (defstruct update-edition :type :distance :old :new)
 
+(declare levenshtein-tree-edit)
+
 (defn tree-size
   "calculate number of leaf in a tree"
   [tree]
@@ -184,6 +186,21 @@
                  :col col}
                 (map vector new-list (drop 1 col)))
         :best)))
+
+(defn levenshtein-tree-edit
+  "work in conjunction with levenshtein-list-edit and
+  levenshtein-list-col-edit to recursivly represent the difference
+  between the two list as a smallest tree of edits."
+  [old-tree new-tree]
+  (cond
+    (= old-tree new-tree) (unchanged-edit old-tree)
+    (not (and (coll? old-tree)
+              (not-empty old-tree)
+              (coll? new-tree)
+              (not-empty new-tree))) (update-edit old-tree new-tree)
+    :else (min-edit
+           (update-edit old-tree new-tree)
+           (levenshtein-list-edit old-tree new-tree))))
 
 (defn sexp-diff
   "computes a diff between two s-expressions which minimizes the
