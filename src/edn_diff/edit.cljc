@@ -1,8 +1,23 @@
 (ns edn-diff.edit
-  "structure to track and compare edits")
+  "structure to track and compare edits"
+  (:require [clojure.spec.alpha :as s]))
 
-(defstruct edit :type :distance :change)
-(defstruct update-edition :type :distance :old :new)
+(s/def ::edit-spec
+  (s/keys :req [::type ::distance (or ::change
+                                      (and ::old ::new))]))
+
+(defn edit
+  [type distance change]
+  {::type type
+   ::distance distance
+   ::change change})
+
+(defn update-edition
+  [distance old new]
+  {::type :update
+   ::distance distance
+   ::old old
+   ::new new})
 
 (defn tree-size
   "calculate number of leaf in a tree"
@@ -14,33 +29,32 @@
 (defn unchanged-edit
   "edit who's distance is the same as the distance of its content."
   [change]
-  (struct edit :unchanged (tree-size change) change))
+  (edit :unchanged (tree-size change) change))
 
 (defn deletion-edit
   "edit representing the distance of removing its content"
   [change]
-  (struct edit :deletion (inc (tree-size change)) change))
+  (edit :deletion (inc (tree-size change)) change))
 
 (defn insertion-edit
   "edit representing the distance of adding its content"
   [change]
-  (struct edit :insertion (inc (tree-size change)) change))
+  (edit :insertion (inc (tree-size change)) change))
 
 (defn update-edit
   "edit representing the distance of removing the old content adding
   the new content"
   [old new]
-  (struct update-edition
-          :update
-          (+ 1 (tree-size old)
-             1 (tree-size new))
-          old
-          new))
+  (update-edition
+   (+ 1 (tree-size old)
+      1 (tree-size new))
+   old
+   new))
 
 (defn compound-edit
   "edit representing the distance of chaining multiple edit together"
   [changes]
-  (struct edit :compound (apply + (map :distance changes)) changes))
+  (edit :compound (apply + (map ::distance changes)) changes))
 
 (defn empty-compound-edit
   "edit representing a empty chain of edits.
@@ -51,4 +65,4 @@
 (defn extend-compound-edit
   "add edit to a chain of edit"
   [edit-chain edit]
-  (compound-edit (cons edit (:change edit-chain))))
+  (compound-edit (cons edit (::change edit-chain))))

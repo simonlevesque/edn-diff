@@ -1,5 +1,5 @@
 (ns edn-diff.edit-test
-  (:require [edn-diff.edit :refer :all]
+  (:require [edn-diff.edit :refer :all :as e]
             #?(:clj [clojure.test :refer :all]
                :cljs [cljs.test :refer :all :include-macros true])))
 
@@ -27,23 +27,23 @@
   (testing "edit types"
     (testing "unchanged"
       (is (= :unchanged
-             (:type (unchanged-edit '())))))
+             (::e/type (unchanged-edit '())))))
     (testing "deletion"
       (is (= :deletion
-             (:type (deletion-edit '())))))
+             (::e/type (deletion-edit '())))))
     (testing "insertion"
       (is (= :insertion
-             (:type (insertion-edit '())))))
+             (::e/type (insertion-edit '())))))
     (testing "update"
       (is (= :update
-             (:type (update-edit '() '())))))
+             (::e/type (update-edit '() '())))))
     (testing "compound (chain edits)"
       (testing "empty chain"
         (is (= :compound
-               (:type (compound-edit '()))))
+               (::e/type (compound-edit '()))))
         (is (= :compound
-               (:type (empty-compound-edit)))))
+               (::e/type (empty-compound-edit)))))
       (testing "empty chain"
         (is (= :compound
-               (:type (extend-compound-edit :test
-                                            (empty-compound-edit)))))))))
+               (::e/type (extend-compound-edit :test
+                                               (empty-compound-edit)))))))))

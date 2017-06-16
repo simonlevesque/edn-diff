@@ -11,21 +11,21 @@
            (count (initial-distance e/unchanged-edit
                                     '(1 2 3 4))))))
   (testing "that initial-distance return a lists of edit"
-    (is (= [{:type :compound :distance 0 :change '()}
-            {:type :compound
-             :distance 1
-             :change '({:type :unchanged :distance 1 :change 1})}
-            {:type :compound
-             :distance 2
-             :change
-             '({:type :unchanged :distance 1 :change 2}
-               {:type :unchanged :distance 1 :change 1})}
-            {:type :compound
-             :distance 3
-             :change
-             '({:type :unchanged :distance 1 :change 3}
-               {:type :unchanged :distance 1 :change 2}
-               {:type :unchanged :distance 1 :change 1})}]
+    (is (= [{::e/type :compound ::e/distance 0 ::e/change '()}
+            {::e/type :compound
+             ::e/distance 1
+             ::e/change '({::e/type :unchanged ::e/distance 1 ::e/change 1})}
+            {::e/type :compound
+             ::e/distance 2
+             ::e/change
+             '({::e/type :unchanged ::e/distance 1 ::e/change 2}
+               {::e/type :unchanged ::e/distance 1 ::e/change 1})}
+            {::e/type :compound
+             ::e/distance 3
+             ::e/change
+             '({::e/type :unchanged ::e/distance 1 ::e/change 3}
+               {::e/type :unchanged ::e/distance 1 ::e/change 2}
+               {::e/type :unchanged ::e/distance 1 ::e/change 1})}]
            (initial-distance e/unchanged-edit '(1 2 3))))))
 
 (deftest sexp-diff-test

@@ -22,7 +22,7 @@
 (defn min-edit
   "select a edit with the minimal distance for a list of edits"
   [& edits]
-  (apply min-key :distance edits))
+  (apply min-key ::e/distance edits))
 
 (defn initial-distance
   "for a list return the edits representing the distance for building
