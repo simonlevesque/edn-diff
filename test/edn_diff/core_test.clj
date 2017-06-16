@@ -1,116 +1,32 @@
 (ns edn-diff.core-test
   (:require [clojure.test :refer :all]
+            [edn-diff.edit :as e]
             [edn-diff.core :refer :all]))
-
-(deftest tree-size-test
-  (testing "tree size return correct counts"
-    (testing "base elemenents"
-      (testing "empty list"
-        (is (= 1
-               (tree-size '()))))
-      (testing "non collection elemenents"
-        (is (= 1
-               (tree-size 1)))
-        (is (= 1
-               (tree-size 'test)))
-        (is (= 1
-               (tree-size :test)))))
-    (testing "list structures"
-      (is (= 4
-             (tree-size '(1 2 3))))
-      (testing "nested list structures"
-        (is (= 7
-               (tree-size '(1 2 3 (4 5)))))))))
-
-(deftest edit-type-test
-  (testing "edit types"
-    (testing "unchanged"
-      (is (= :unchanged
-             (:type (unchanged-edit '())))))
-    (testing "deletion"
-      (is (= :deletion
-             (:type (deletion-edit '())))))
-    (testing "insertion"
-      (is (= :insertion
-             (:type (insertion-edit '())))))
-    (testing "update"
-      (is (= :update
-             (:type (update-edit '() '())))))
-    (testing "compound (chain edits)"
-      (testing "empty chain"
-        (is (= :compound
-               (:type (compound-edit '()))))
-        (is (= :compound
-               (:type (empty-compound-edit)))))
-      (testing "empty chain"
-        (is (= :compound
-               (:type (extend-compound-edit :test
-                                            (empty-compound-edit)))))))))
-
-(deftest render-test
-  (testing "that s-exp and be rebuilt"
-    (is (= '(1)
-           (render-difference {:type :unchanged
-                               :distance 1
-                               :change 1}
-                              :old
-                              :new)))
-    (is (= '((1 2 3))
-           (render-difference {:type :compound
-                               :distance 4
-                               :change (list {:type :unchanged, :distance 1, :change 3}
-                                             {:type :unchanged, :distance 1, :change 2}
-                                             {:type :unchanged, :distance 1, :change 1})}
-                              :old :new))))
-  (testing "that makers are applied to modification"
-    (testing "updates"
-      (is (= '(:old 1 :new 2)
-             (render-difference {:type :update :distance 4 :old 1 :new 2}
-                                :old
-                                :new))))
-    (testing "insertions"
-      (is (= '(:new 1)
-             (render-difference {:type :insertion :distance 1 :change 1}
-                                :old :new))))
-    (testing "deletion"
-      (is (= '(:old 1)
-             (render-difference {:type :deletion :distance 1 :change 1}
-                                :old :new))))
-    (testing "nested edit"
-      (is (= '((:old 1))
-             (render-difference {:type :compound
-                                 :distance 2
-                                 :change (list {:type :deletion :distance 1 :change 1})}
-                                :old :new))))
-    (testing "empty list"
-      (is (= '(())
-             (render-difference {:type :unchanged :distance 1 :change '()}
-                                :old :new))))))
 
 (deftest initial-distance-test
   ;; this test can be converted to a properly based generated test
   (testing "that initial-distance return the distance require to build
   the list"
     (is (= 5
-           (count (initial-distance unchanged-edit
+           (count (initial-distance e/unchanged-edit
                                     '(1 2 3 4))))))
   (testing "that initial-distance return a lists of edit"
-    (is (= [{:type :compound :distance 0 :change '()}
-            {:type :compound
-             :distance 1
-             :change '({:type :unchanged :distance 1 :change 1})}
-            {:type :compound
-             :distance 2
-             :change
-             '({:type :unchanged :distance 1 :change 2}
-               {:type :unchanged :distance 1 :change 1})}
-            {:type :compound
-             :distance 3
-             :change
-             '({:type :unchanged :distance 1 :change 3}
-               {:type :unchanged :distance 1 :change 2}
-               {:type :unchanged :distance 1 :change 1})}]
-           (initial-distance unchanged-edit '(1 2 3))))))
+    (is (= [{::e/type :compound ::e/distance 0 ::e/change '()}
+            {::e/type :compound
+             ::e/distance 1
+             ::e/change '({::e/type :unchanged ::e/distance 1 ::e/change 1})}
+            {::e/type :compound
+             ::e/distance 2
+             ::e/change
+             '({::e/type :unchanged ::e/distance 1 ::e/change 2}
+               {::e/type :unchanged ::e/distance 1 ::e/change 1})}
+            {::e/type :compound
+             ::e/distance 3
+             ::e/change
+             '({::e/type :unchanged ::e/distance 1 ::e/change 3}
+               {::e/type :unchanged ::e/distance 1 ::e/change 2}
+               {::e/type :unchanged ::e/distance 1 ::e/change 1})}]
+           (initial-distance e/unchanged-edit '(1 2 3))))))
 
 (deftest sexp-diff-test
   (testing "that diff are valid"
