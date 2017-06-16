@@ -1,4 +1,4 @@
-(defproject edn-diff "0.1.0-SNAPSHOT"
+(defproject edn-diff "0.2.0-SNAPSHOT"
   :description "A edn diff library for Clojure."
   :url "https://github.com/simonlevesque/edn-diff"
   :license {:name "Eclipse Public License"
